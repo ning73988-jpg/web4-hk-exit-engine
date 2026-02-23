@@ -3,35 +3,98 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Web4 出金引擎 | wanning出品</title>
+    <title>Web4 HK Exit Engine | Professional Aggregator</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .data-row { display: flex; justify-content: space-between; padding: 0.5rem 0; border-bottom: 1px solid #1f2937; }
+    </style>
 </head>
-<body class="bg-black text-white font-sans">
-    <div class="max-w-4xl mx-auto px-4 py-20">
-        <header class="mb-16 border-b border-gray-800 pb-8">
-            <h1 class="text-5xl font-bold mb-4 bg-gradient-to-r from-blue-500 to-emerald-500 bg-clip-text text-transparent">
-                Web4 HK Exit Engine
-            </h1>
-            <p class="text-gray-400 text-xl italic">“把数字资产变成你兜里的港币，一步到位。”</p>
+<body class="bg-black text-white font-sans antialiased">
+    <div class="max-w-4xl mx-auto px-6 py-12">
+        <header class="mb-12">
+            <h1 class="text-4xl font-extrabold tracking-tight mb-2">Web4 HK Exit Engine</h1>
+            <p class="text-gray-500 font-mono text-sm uppercase tracking-widest">Digital Asset Liquidity Analysis Tool</p>
         </header>
 
-        <section class="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <div class="p-6 border border-gray-800 rounded-2xl hover:border-blue-500 transition cursor-pointer">
-                <h3 class="text-2xl font-bold mb-2">香港虚拟卡 (RedotPay/OneKey)</h3>
-                <p class="text-gray-400 mb-4">适合：日常消费、小额出金。无需香港银行卡。</p>
-                <span class="text-blue-500 font-bold">手续费：~1.2% →</span>
-            </div>
+        <main class="space-y-12">
+            <section class="bg-gray-900 p-8 rounded-xl border border-gray-800">
+                <label class="block text-sm font-medium text-gray-400 mb-4 uppercase">输入预估出金金额 (USDT)</label>
+                <div class="flex gap-4">
+                    <input id="amountInput" type="number" step="0.01" placeholder="0.00" 
+                        class="bg-black border border-gray-700 p-4 rounded-lg w-full text-3xl focus:border-blue-600 focus:ring-1 focus:ring-blue-600 outline-none transition-all">
+                    <button onclick="calculate()" 
+                        class="bg-white text-black px-10 rounded-lg font-bold hover:bg-gray-200 transition-colors uppercase text-sm tracking-tighter">
+                        开始测算
+                    </button>
+                </div>
+                
+                <div id="resultArea" class="mt-8 hidden animate-in fade-in duration-500">
+                    <h3 class="text-lg font-bold mb-4 text-blue-500">测算结果 (数据更新至: 2026-02-24)</h3>
+                    <div id="comparisonGrid" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        </div>
+                </div>
+            </section>
 
-            <div class="p-6 border border-gray-800 rounded-2xl hover:border-emerald-500 transition cursor-pointer">
-                <h3 class="text-2xl font-bold mb-2">持牌交易所 (HashKey/OSL)</h3>
-                <p class="text-gray-400 mb-4">适合：大额合规出金。需本人香港银行卡。</p>
-                <span class="text-emerald-500 font-bold">手续费：极低 →</span>
-            </div>
-        </section>
+            <section class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div class="space-y-4">
+                    <h4 class="font-bold text-gray-300 border-l-4 border-blue-600 pl-3">RedotPay (虚拟卡渠道)</h4>
+                    <div class="text-sm text-gray-500 space-y-1">
+                        <p>• 货币转换费 (Crypto Conversion): 1%</p>
+                        <p>• 汇率升水 (FX Markup): 1.2%</p>
+                        <p>• 小额交易保护: 费率低于 $1.00 时按 $1.00 计</p>
+                    </div>
+                </div>
+                <div class="space-y-4">
+                    <h4 class="font-bold text-gray-300 border-l-4 border-emerald-600 pl-3">HashKey (持牌交易所)</h4>
+                    <div class="text-sm text-gray-500 space-y-1">
+                        <p>• 现货交易费率 (Taker): 0.29%</p>
+                        <p>• 提现手续费: 动态 (随链上 Gas 调整)</p>
+                        <p>• 要求: 必须拥有本人有效香港银行账户</p>
+                    </div>
+                </div>
+            </section>
+        </main>
 
-        <footer class="mt-32 text-gray-600 text-sm">
-            <p>© 2026 Wan Ning. Powered by AI & Web3 Logic.</p>
+        <footer class="mt-24 pt-8 border-t border-gray-900 text-gray-600 text-xs">
+            <p>Built by Wan Ning. Data for reference only. 商业严谨性声明：本工具不构成投资建议。</p>
         </footer>
     </div>
+
+    <script>
+    function calculate() {
+        const amount = parseFloat(document.getElementById('amountInput').value);
+        const resArea = document.getElementById('resultArea');
+        const grid = document.getElementById('comparisonGrid');
+
+        if (!amount || amount <= 0) return;
+
+        // --- RedotPay 计算逻辑 (2026 最新复合费率约 2.2%) ---
+        // 1% 转换 + 1.2% FX
+        let redotFee = amount * 0.022;
+        if (redotFee < 1) redotFee = 1; 
+        const redotFinal = (amount - redotFee).toFixed(2);
+
+        // --- HashKey 计算逻辑 (0.29% 交易费 + 预估固定提现损耗) ---
+        let hashTradingFee = amount * 0.0029;
+        let hashWithdrawalEst = 2.0; // 预估出金银行电汇/手续费损耗
+        const hashFinal = (amount - hashTradingFee - hashWithdrawalEst).toFixed(2);
+
+        resArea.classList.remove('hidden');
+        grid.innerHTML = `
+            <div class="bg-black p-5 rounded-lg border border-gray-800">
+                <p class="text-gray-500 text-xs mb-1 uppercase tracking-widest">虚拟卡方案</p>
+                <p class="text-2xl font-mono">$${redotFinal}</p>
+                <p class="text-xs text-gray-600 mt-2">预估损耗: $${redotFee.toFixed(2)}</p>
+                <a href="#" class="inline-block mt-4 text-xs text-blue-500 underline uppercase font-bold tracking-widest">获取入口</a>
+            </div>
+            <div class="bg-black p-5 rounded-lg border border-gray-800">
+                <p class="text-gray-500 text-xs mb-1 uppercase tracking-widest">合规出金方案</p>
+                <p class="text-2xl font-mono">$${hashFinal}</p>
+                <p class="text-xs text-gray-600 mt-2">预估损耗: $${(hashTradingFee + hashWithdrawalEst).toFixed(2)}</p>
+                <a href="#" class="inline-block mt-4 text-xs text-emerald-500 underline uppercase font-bold tracking-widest">获取入口</a>
+            </div>
+        `;
+    }
+    </script>
 </body>
 </html>
